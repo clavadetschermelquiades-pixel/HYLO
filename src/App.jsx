@@ -12,9 +12,10 @@ import {
   addMorningCheck,
   deleteMorningCheck,
 } from './lib/storage.js'
+import { formatDate, todayStr } from './lib/utils.js'
 
 const TITLES = {
-  dashboard: ['Hylo', 'Deine Trainingsübersicht'],
+  dashboard: ['Hylo', `Heute: ${formatDate(todayStr())}`],
   log: ['Aktivität loggen', 'Lauf oder Krafttraining erfassen'],
   morning: ['Morgencheck', 'Gewicht, Ruhepuls & Schlaf'],
   history: ['Verlauf', 'Alle Einträge im Überblick'],
