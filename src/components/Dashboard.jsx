@@ -29,7 +29,7 @@ export default function Dashboard({ activities, morningChecks, onNavigate }) {
       </div>
 
       <div className="row" style={{ marginBottom: 20 }}>
-        <button className="btn btn-primary" onClick={() => onNavigate('log')}>
+        <button className="btn btn-accent" onClick={() => onNavigate('log')}>
           + Aktivität loggen
         </button>
         <button className="btn btn-secondary" onClick={() => onNavigate('morning')}>

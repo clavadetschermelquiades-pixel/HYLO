@@ -269,6 +269,11 @@ textarea {
   width: 100%;
 }
 
+.btn-accent {
+  background: var(--run);
+  color: #2a1a02;
+}
+
 .btn-primary {
   background: var(--strength);
   color: #04211d;
