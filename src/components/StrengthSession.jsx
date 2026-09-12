@@ -1,5 +1,13 @@
 import { useEffect, useState } from 'react'
-import { getActiveSession, setActiveSession, clearActiveSession, getRoutines, addRoutine, deleteRoutine } from '../lib/storage.js'
+import {
+  getActiveSession,
+  setActiveSession,
+  clearActiveSession,
+  getRoutines,
+  addRoutine,
+  updateRoutine,
+  deleteRoutine,
+} from '../lib/storage.js'
 import { getExercises, addExercise, CATEGORIES } from '../lib/exercises.js'
 import { dateFromTimestamp, formatElapsed } from '../lib/utils.js'
 
@@ -105,7 +113,7 @@ function PreSessionScreen({ onStart }) {
               <div className="list-item-detail" style={{ marginBottom: 12 }}>
                 {r.exercises.map((e) => e.name).join(', ')}
               </div>
-              <button className="btn btn-accent" onClick={() => onStart(r.exercises)}>
+              <button className="btn btn-accent" onClick={() => onStart(r.exercises, r.id)}>
                 Starten
               </button>
             </div>
@@ -152,6 +160,7 @@ export default function StrengthSession({ onSubmit }) {
   const [session, setSession] = useState(() => getActiveSession())
   const [elapsedSec, setElapsedSec] = useState(0)
   const [notes, setNotes] = useState('')
+  const [routineUpdateMessage, setRoutineUpdateMessage] = useState('')
 
   useEffect(() => {
     if (!session) return
@@ -166,9 +175,10 @@ export default function StrengthSession({ onSubmit }) {
     setSession(updated)
   }
 
-  function startSession(initialExercises = []) {
+  function startSession(initialExercises = [], routineId = null) {
     const s = {
       startedAt: Date.now(),
+      routineId,
       exercises: initialExercises.map((ex) => ({ name: ex.name, category: ex.category, sets: [emptySet()] })),
     }
     persist(s)
@@ -213,6 +223,14 @@ export default function StrengthSession({ onSubmit }) {
 
   function removeExercise(exIdx) {
     persist({ ...session, exercises: session.exercises.filter((_, i) => i !== exIdx) })
+  }
+
+  function updateRoutineFromSession() {
+    updateRoutine(session.routineId, {
+      exercises: session.exercises.map((ex) => ({ name: ex.name, category: ex.category })),
+    })
+    setRoutineUpdateMessage('Sammlung aktualisiert.')
+    setTimeout(() => setRoutineUpdateMessage(''), 3000)
   }
 
   function finishSession() {
@@ -308,6 +326,19 @@ export default function StrengthSession({ onSubmit }) {
           </button>
         </div>
       ))}
+
+      {session.routineId && (
+        <>
+          <button className="btn btn-secondary" onClick={updateRoutineFromSession} style={{ marginBottom: 10 }}>
+            Sammlung aktualisieren
+          </button>
+          {routineUpdateMessage && (
+            <div className="list-item-detail" style={{ color: 'var(--strength)', marginBottom: 10 }}>
+              {routineUpdateMessage}
+            </div>
+          )}
+        </>
+      )}
 
       <div className="field">
         <label>Notizen (optional)</label>

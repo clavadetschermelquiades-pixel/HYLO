@@ -126,3 +126,8 @@ export function deleteRoutine(id) {
   const all = load(KEYS.routines).filter((r) => r.id !== id)
   save(KEYS.routines, all)
 }
+
+export function updateRoutine(id, patch) {
+  const all = load(KEYS.routines).map((r) => (r.id === id ? { ...r, ...patch } : r))
+  save(KEYS.routines, all)
+}
