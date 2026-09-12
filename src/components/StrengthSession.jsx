@@ -8,11 +8,18 @@ import {
   updateRoutine,
   deleteRoutine,
 } from '../lib/storage.js'
-import { getExercises, addExercise, CATEGORIES } from '../lib/exercises.js'
+import { getExercises, addExercise, getLastPerformance, CATEGORIES } from '../lib/exercises.js'
 import { dateFromTimestamp, formatElapsed } from '../lib/utils.js'
 
 function emptySet() {
   return { reps: '', weight: '' }
+}
+
+/** Sets pre-filled from the last time this exercise was logged, or a single empty set. */
+function initialSetsFor(name) {
+  const last = getLastPerformance(name)
+  if (!last) return [emptySet()]
+  return last.map((s) => ({ reps: String(s.reps), weight: String(s.weight) }))
 }
 
 function ExercisePicker({ onAdd }) {
@@ -179,7 +186,11 @@ export default function StrengthSession({ onSubmit }) {
     const s = {
       startedAt: Date.now(),
       routineId,
-      exercises: initialExercises.map((ex) => ({ name: ex.name, category: ex.category, sets: [emptySet()] })),
+      exercises: initialExercises.map((ex) => ({
+        name: ex.name,
+        category: ex.category,
+        sets: initialSetsFor(ex.name),
+      })),
     }
     persist(s)
   }
@@ -195,7 +206,7 @@ export default function StrengthSession({ onSubmit }) {
   function addExerciseToSession(name, category) {
     const updated = {
       ...session,
-      exercises: [...session.exercises, { name, category, sets: [emptySet()] }],
+      exercises: [...session.exercises, { name, category, sets: initialSetsFor(name) }],
     }
     persist(updated)
   }

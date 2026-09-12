@@ -1,3 +1,5 @@
+import { getActivities } from './storage.js'
+
 const KEY = 'hylo:exercises'
 
 export const CATEGORIES = [
@@ -68,4 +70,15 @@ export function addExercise(name, category) {
 export function deleteExercise(id) {
   const all = load().filter((e) => e.id !== id)
   localStorage.setItem(KEY, JSON.stringify(all))
+}
+
+/** Sets from the most recent logged session that included this exercise, or null. */
+export function getLastPerformance(name) {
+  const activities = getActivities()
+  for (const a of activities) {
+    if (a.type !== 'strength') continue
+    const match = a.exercises?.find((ex) => ex.name.toLowerCase() === name.toLowerCase())
+    if (match && match.sets?.length > 0) return match.sets
+  }
+  return null
 }
