@@ -3,6 +3,7 @@ const KEYS = {
   morningChecks: 'hylo:morningChecks',
   stravaAuth: 'hylo:stravaAuth',
   activeSession: 'hylo:activeSession',
+  routines: 'hylo:routines',
 }
 
 function uid() {
@@ -105,4 +106,23 @@ export function setActiveSession(session) {
 
 export function clearActiveSession() {
   localStorage.removeItem(KEYS.activeSession)
+}
+
+// --- Saved training routines (reusable exercise collections) ---
+
+export function getRoutines() {
+  return load(KEYS.routines)
+}
+
+export function addRoutine(routine) {
+  const all = load(KEYS.routines)
+  const entry = { ...routine, id: uid(), createdAt: Date.now() }
+  all.push(entry)
+  save(KEYS.routines, all)
+  return entry
+}
+
+export function deleteRoutine(id) {
+  const all = load(KEYS.routines).filter((r) => r.id !== id)
+  save(KEYS.routines, all)
 }

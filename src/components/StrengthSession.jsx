@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { getActiveSession, setActiveSession, clearActiveSession } from '../lib/storage.js'
+import { getActiveSession, setActiveSession, clearActiveSession, getRoutines, addRoutine, deleteRoutine } from '../lib/storage.js'
 import { getExercises, addExercise, CATEGORIES } from '../lib/exercises.js'
 import { dateFromTimestamp, formatElapsed } from '../lib/utils.js'
 
@@ -7,12 +7,150 @@ function emptySet() {
   return { reps: '', weight: '' }
 }
 
-export default function StrengthSession({ onSubmit }) {
-  const [session, setSession] = useState(() => getActiveSession())
-  const [elapsedSec, setElapsedSec] = useState(0)
+function ExercisePicker({ onAdd }) {
   const [library, setLibrary] = useState(() => getExercises())
   const [categoryFilter, setCategoryFilter] = useState('kraft')
   const [customName, setCustomName] = useState('')
+
+  const filtered = library.filter((e) => e.category === categoryFilter)
+
+  function handlePick(name, category) {
+    addExercise(name, category)
+    setLibrary(getExercises())
+    onAdd(name, category)
+  }
+
+  function handleAddCustom() {
+    if (!customName.trim()) return
+    handlePick(customName.trim(), categoryFilter)
+    setCustomName('')
+  }
+
+  return (
+    <div>
+      <div className="filter-row">
+        {CATEGORIES.map((c) => (
+          <button
+            key={c.id}
+            className={`filter-chip ${categoryFilter === c.id ? 'active' : ''}`}
+            onClick={() => setCategoryFilter(c.id)}
+          >
+            {c.label}
+          </button>
+        ))}
+      </div>
+
+      <div className="filter-row">
+        {filtered.map((e) => (
+          <button key={e.id} className="filter-chip" onClick={() => handlePick(e.name, e.category)}>
+            + {e.name}
+          </button>
+        ))}
+      </div>
+
+      <div className="row" style={{ marginBottom: 20 }}>
+        <input
+          placeholder="Eigene Übung..."
+          value={customName}
+          onChange={(e) => setCustomName(e.target.value)}
+          style={{ flex: 1 }}
+        />
+        <button className="btn btn-secondary" style={{ width: 'auto', flex: '0 0 auto' }} onClick={handleAddCustom}>
+          Hinzufügen
+        </button>
+      </div>
+    </div>
+  )
+}
+
+function PreSessionScreen({ onStart }) {
+  const [routines, setRoutines] = useState(() => getRoutines())
+  const [draft, setDraft] = useState([]) // [{name, category}]
+  const [routineName, setRoutineName] = useState('')
+
+  function addToDraft(name, category) {
+    setDraft((prev) => [...prev, { name, category }])
+  }
+
+  function removeFromDraft(idx) {
+    setDraft((prev) => prev.filter((_, i) => i !== idx))
+  }
+
+  function saveRoutine() {
+    if (!routineName.trim() || draft.length === 0) return
+    addRoutine({ name: routineName.trim(), exercises: draft })
+    setRoutines(getRoutines())
+    setRoutineName('')
+  }
+
+  function handleDeleteRoutine(id) {
+    if (!window.confirm('Diese Trainings-Sammlung wirklich löschen?')) return
+    deleteRoutine(id)
+    setRoutines(getRoutines())
+  }
+
+  return (
+    <div>
+      {routines.length > 0 && (
+        <>
+          <h3>Meine Trainings</h3>
+          {routines.map((r) => (
+            <div className="card" key={r.id}>
+              <div className="exercise-block-header" style={{ marginBottom: 4 }}>
+                <strong>{r.name}</strong>
+                <button className="icon-btn" onClick={() => handleDeleteRoutine(r.id)} aria-label="Sammlung löschen">
+                  ✕
+                </button>
+              </div>
+              <div className="list-item-detail" style={{ marginBottom: 12 }}>
+                {r.exercises.map((e) => e.name).join(', ')}
+              </div>
+              <button className="btn btn-accent" onClick={() => onStart(r.exercises)}>
+                Starten
+              </button>
+            </div>
+          ))}
+        </>
+      )}
+
+      <h3>Neues Training zusammenstellen</h3>
+      <ExercisePicker onAdd={addToDraft} />
+
+      {draft.length > 0 && (
+        <div className="card">
+          {draft.map((ex, i) => (
+            <div className="list-item-top" key={i} style={{ marginBottom: 8 }}>
+              <span>{ex.name}</span>
+              <button className="icon-btn" onClick={() => removeFromDraft(i)} aria-label="Entfernen">
+                ✕
+              </button>
+            </div>
+          ))}
+
+          <div className="row" style={{ marginBottom: 12 }}>
+            <input
+              placeholder="Name für diese Sammlung..."
+              value={routineName}
+              onChange={(e) => setRoutineName(e.target.value)}
+              style={{ flex: 1 }}
+            />
+          </div>
+          <button className="btn btn-secondary" onClick={saveRoutine} style={{ marginBottom: 10 }}>
+            Als Sammlung speichern
+          </button>
+        </div>
+      )}
+
+      <button className="btn btn-accent" onClick={() => onStart(draft)}>
+        Training starten
+      </button>
+    </div>
+  )
+}
+
+export default function StrengthSession({ onSubmit }) {
+  const [session, setSession] = useState(() => getActiveSession())
+  const [elapsedSec, setElapsedSec] = useState(0)
   const [notes, setNotes] = useState('')
 
   useEffect(() => {
@@ -28,8 +166,11 @@ export default function StrengthSession({ onSubmit }) {
     setSession(updated)
   }
 
-  function startSession() {
-    const s = { startedAt: Date.now(), exercises: [] }
+  function startSession(initialExercises = []) {
+    const s = {
+      startedAt: Date.now(),
+      exercises: initialExercises.map((ex) => ({ name: ex.name, category: ex.category, sets: [emptySet()] })),
+    }
     persist(s)
   }
 
@@ -42,19 +183,11 @@ export default function StrengthSession({ onSubmit }) {
   }
 
   function addExerciseToSession(name, category) {
-    addExercise(name, category)
-    setLibrary(getExercises())
     const updated = {
       ...session,
       exercises: [...session.exercises, { name, category, sets: [emptySet()] }],
     }
     persist(updated)
-  }
-
-  function handleAddCustom() {
-    if (!customName.trim()) return
-    addExerciseToSession(customName, categoryFilter)
-    setCustomName('')
   }
 
   function updateSet(exIdx, setIdx, patch) {
@@ -109,14 +242,8 @@ export default function StrengthSession({ onSubmit }) {
   }
 
   if (!session) {
-    return (
-      <button className="btn btn-accent" onClick={startSession}>
-        Training starten
-      </button>
-    )
+    return <PreSessionScreen onStart={startSession} />
   }
-
-  const filteredLibrary = library.filter((e) => e.category === categoryFilter)
 
   return (
     <div>
@@ -128,41 +255,7 @@ export default function StrengthSession({ onSubmit }) {
       </div>
 
       <h3>Übung hinzufügen</h3>
-      <div className="filter-row">
-        {CATEGORIES.map((c) => (
-          <button
-            key={c.id}
-            className={`filter-chip ${categoryFilter === c.id ? 'active' : ''}`}
-            onClick={() => setCategoryFilter(c.id)}
-          >
-            {c.label}
-          </button>
-        ))}
-      </div>
-
-      <div className="filter-row">
-        {filteredLibrary.map((e) => (
-          <button
-            key={e.id}
-            className="filter-chip"
-            onClick={() => addExerciseToSession(e.name, e.category)}
-          >
-            + {e.name}
-          </button>
-        ))}
-      </div>
-
-      <div className="row" style={{ marginBottom: 20 }}>
-        <input
-          placeholder="Eigene Übung..."
-          value={customName}
-          onChange={(e) => setCustomName(e.target.value)}
-          style={{ flex: 1 }}
-        />
-        <button className="btn btn-secondary" style={{ width: 'auto', flex: '0 0 auto' }} onClick={handleAddCustom}>
-          Hinzufügen
-        </button>
-      </div>
+      <ExercisePicker onAdd={addExerciseToSession} />
 
       {session.exercises.map((ex, exIdx) => (
         <div className="exercise-block" key={exIdx}>
