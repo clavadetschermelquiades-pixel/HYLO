@@ -13,7 +13,7 @@ import {
   deleteMorningCheck,
 } from './lib/storage.js'
 import { formatDate, todayStr } from './lib/utils.js'
-import { handleStravaRedirect } from './lib/strava.js'
+import { handleStravaRedirect, isStravaConnected, syncStravaActivities } from './lib/strava.js'
 
 const TITLES = {
   dashboard: ['Hylo', `Heute: ${formatDate(todayStr())}`],
@@ -38,6 +38,9 @@ export default function App() {
     handleStravaRedirect()
       .then((consumed) => {
         if (consumed) refresh()
+        if (isStravaConnected()) {
+          return syncStravaActivities().then(() => refresh())
+        }
       })
       .catch((e) => setStravaError(e.message))
   }, [refresh])
