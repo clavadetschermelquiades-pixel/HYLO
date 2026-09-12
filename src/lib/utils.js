@@ -1,5 +1,25 @@
+function toLocalDateStr(date) {
+  const y = date.getFullYear()
+  const m = String(date.getMonth() + 1).padStart(2, '0')
+  const d = String(date.getDate()).padStart(2, '0')
+  return `${y}-${m}-${d}`
+}
+
 export function todayStr() {
-  return new Date().toISOString().slice(0, 10)
+  return toLocalDateStr(new Date())
+}
+
+export function dateFromTimestamp(ts) {
+  return toLocalDateStr(new Date(ts))
+}
+
+/** Live elapsed time in seconds as "m:ss" or "h:mm:ss" */
+export function formatElapsed(totalSeconds) {
+  const h = Math.floor(totalSeconds / 3600)
+  const m = Math.floor((totalSeconds % 3600) / 60)
+  const s = Math.floor(totalSeconds % 60)
+  if (h > 0) return `${h}:${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`
+  return `${m}:${String(s).padStart(2, '0')}`
 }
 
 export function formatDate(dateStr) {

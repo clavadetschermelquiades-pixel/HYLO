@@ -64,12 +64,18 @@ export default function History({ activities, morningChecks, onDeleteActivity, o
             </div>
           )}
 
-          {kind === 'strength' &&
-            data.exercises?.map((ex, i) => (
-              <div className="list-item-detail" key={i}>
-                {ex.name}: {ex.sets.map((s) => `${s.reps}×${s.weight}kg`).join(', ')}
-              </div>
-            ))}
+          {kind === 'strength' && (
+            <>
+              {data.durationMin ? (
+                <div className="list-item-detail">Dauer: {formatDuration(data.durationMin)}</div>
+              ) : null}
+              {data.exercises?.map((ex, i) => (
+                <div className="list-item-detail" key={i}>
+                  {ex.name}: {ex.sets.map((s) => `${s.reps}×${s.weight}kg`).join(', ')}
+                </div>
+              ))}
+            </>
+          )}
 
           {kind === 'morning' && (
             <div className="list-item-detail">

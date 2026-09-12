@@ -2,6 +2,7 @@ const KEYS = {
   activities: 'hylo:activities',
   morningChecks: 'hylo:morningChecks',
   stravaAuth: 'hylo:stravaAuth',
+  activeSession: 'hylo:activeSession',
 }
 
 function uid() {
@@ -85,4 +86,23 @@ export function setStravaAuth(auth) {
 
 export function clearStravaAuth() {
   localStorage.removeItem(KEYS.stravaAuth)
+}
+
+// --- Active strength/mobility/physio session (survives reloads) ---
+
+export function getActiveSession() {
+  try {
+    const raw = localStorage.getItem(KEYS.activeSession)
+    return raw ? JSON.parse(raw) : null
+  } catch {
+    return null
+  }
+}
+
+export function setActiveSession(session) {
+  localStorage.setItem(KEYS.activeSession, JSON.stringify(session))
+}
+
+export function clearActiveSession() {
+  localStorage.removeItem(KEYS.activeSession)
 }

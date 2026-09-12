@@ -63,6 +63,7 @@ export default function Dashboard({ activities, morningChecks, onNavigate }) {
                 <span className="badge strength">Kraft</span>
                 <span className="list-item-date">{formatDate(a.date)}</span>
               </div>
+              {a.durationMin ? <div className="list-item-detail">Dauer: {formatDuration(a.durationMin)}</div> : null}
               {a.exercises?.map((ex, i) => (
                 <div className="list-item-detail" key={i}>
                   {ex.name}: {ex.sets.map((s) => `${s.reps}×${s.weight}kg`).join(', ')}
@@ -110,6 +111,7 @@ export default function Dashboard({ activities, morningChecks, onNavigate }) {
             <div className="list-item-detail">
               {a.exercises?.length || 0} Übung(en) ·{' '}
               {a.exercises?.reduce((s, ex) => s + (ex.sets?.length || 0), 0) || 0} Sätze
+              {a.durationMin ? ` · ${formatDuration(a.durationMin)}` : ''}
             </div>
           )}
         </div>
