@@ -1,6 +1,7 @@
 const KEYS = {
   activities: 'hylo:activities',
   morningChecks: 'hylo:morningChecks',
+  stravaAuth: 'hylo:stravaAuth',
 }
 
 function uid() {
@@ -44,6 +45,10 @@ export function deleteActivity(id) {
   save(KEYS.activities, all)
 }
 
+export function hasStravaActivity(stravaId) {
+  return load(KEYS.activities).some((a) => a.stravaId === stravaId)
+}
+
 // --- Morning checks ---
 
 export function getMorningChecks() {
@@ -61,4 +66,23 @@ export function addMorningCheck(check) {
 export function deleteMorningCheck(id) {
   const all = load(KEYS.morningChecks).filter((c) => c.id !== id)
   save(KEYS.morningChecks, all)
+}
+
+// --- Strava connection ---
+
+export function getStravaAuth() {
+  try {
+    const raw = localStorage.getItem(KEYS.stravaAuth)
+    return raw ? JSON.parse(raw) : null
+  } catch {
+    return null
+  }
+}
+
+export function setStravaAuth(auth) {
+  localStorage.setItem(KEYS.stravaAuth, JSON.stringify(auth))
+}
+
+export function clearStravaAuth() {
+  localStorage.removeItem(KEYS.stravaAuth)
 }

@@ -13,6 +13,7 @@ import {
   deleteMorningCheck,
 } from './lib/storage.js'
 import { formatDate, todayStr } from './lib/utils.js'
+import { handleStravaRedirect } from './lib/strava.js'
 
 const TITLES = {
   dashboard: ['Hylo', `Heute: ${formatDate(todayStr())}`],
@@ -25,6 +26,7 @@ export default function App() {
   const [tab, setTab] = useState('dashboard')
   const [activities, setActivities] = useState([])
   const [morningChecks, setMorningChecks] = useState([])
+  const [stravaError, setStravaError] = useState('')
 
   const refresh = useCallback(() => {
     setActivities(getActivities())
@@ -33,6 +35,11 @@ export default function App() {
 
   useEffect(() => {
     refresh()
+    handleStravaRedirect()
+      .then((consumed) => {
+        if (consumed) refresh()
+      })
+      .catch((e) => setStravaError(e.message))
   }, [refresh])
 
   function handleAddActivity(activity) {
@@ -72,6 +79,8 @@ export default function App() {
             activities={activities}
             morningChecks={morningChecks}
             onNavigate={setTab}
+            onDataChanged={refresh}
+            stravaError={stravaError}
           />
         )}
         {tab === 'log' && <ActivityForm onSubmit={handleAddActivity} />}

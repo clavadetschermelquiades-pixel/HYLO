@@ -1,6 +1,7 @@
 import { formatDate, formatDuration, formatPace, isThisWeek } from '../lib/utils.js'
+import StravaCard from './StravaCard.jsx'
 
-export default function Dashboard({ activities, morningChecks, onNavigate }) {
+export default function Dashboard({ activities, morningChecks, onNavigate, onDataChanged, stravaError }) {
   const weekRuns = activities.filter((a) => a.type === 'run' && isThisWeek(a.date))
   const weekStrength = activities.filter((a) => a.type === 'strength' && isThisWeek(a.date))
   const weekDistance = weekRuns.reduce((sum, a) => sum + (a.distanceKm || 0), 0)
@@ -36,6 +37,14 @@ export default function Dashboard({ activities, morningChecks, onNavigate }) {
           ☀️ Morgencheck
         </button>
       </div>
+
+      {stravaError && (
+        <div className="card" style={{ borderColor: 'var(--danger)' }}>
+          {stravaError}
+        </div>
+      )}
+
+      <StravaCard onSynced={onDataChanged} />
 
       {latestCheck && (
         <div className="card">
