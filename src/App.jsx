@@ -26,7 +26,6 @@ export default function App() {
   const [tab, setTab] = useState('dashboard')
   const [activities, setActivities] = useState([])
   const [morningChecks, setMorningChecks] = useState([])
-  const [stravaError, setStravaError] = useState('')
 
   const refresh = useCallback(() => {
     setActivities(getActivities())
@@ -42,7 +41,7 @@ export default function App() {
           return syncStravaActivities().then(() => refresh())
         }
       })
-      .catch((e) => setStravaError(e.message))
+      .catch((e) => console.error('Strava sync failed:', e.message))
   }, [refresh])
 
   function handleAddActivity(activity) {
@@ -82,8 +81,6 @@ export default function App() {
             activities={activities}
             morningChecks={morningChecks}
             onNavigate={setTab}
-            onDataChanged={refresh}
-            stravaError={stravaError}
           />
         )}
         {tab === 'log' && <ActivityForm onSubmit={handleAddActivity} />}
