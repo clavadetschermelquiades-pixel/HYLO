@@ -14,6 +14,7 @@ import {
 } from './lib/storage.js'
 import { formatDate, todayStr } from './lib/utils.js'
 import { handleStravaRedirect, isStravaConnected, syncStravaActivities } from './lib/strava.js'
+import { shouldAutoGenerate, generateReview } from './lib/weeklyReview.js'
 
 const TITLES = {
   dashboard: ['Hylo', `Heute: ${formatDate(todayStr())}`],
@@ -42,6 +43,12 @@ export default function App() {
         }
       })
       .catch((e) => console.error('Strava sync failed:', e.message))
+
+    if (shouldAutoGenerate()) {
+      generateReview(getActivities(), getMorningChecks()).catch((e) =>
+        console.error('Weekly review failed:', e.message),
+      )
+    }
   }, [refresh])
 
   function handleAddActivity(activity) {

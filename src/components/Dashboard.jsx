@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { formatDate, formatDuration, formatPace, isThisWeek } from '../lib/utils.js'
+import WeeklyReviewCard from './WeeklyReviewCard.jsx'
 
 export default function Dashboard({ activities, morningChecks, onNavigate }) {
   const [expanded, setExpanded] = useState(null) // 'run' | 'strength' | null
@@ -82,6 +83,8 @@ export default function Dashboard({ activities, morningChecks, onNavigate }) {
           Morgencheck
         </button>
       </div>
+
+      <WeeklyReviewCard activities={activities} morningChecks={morningChecks} />
 
       {latestCheck && (
         <div className="card">
