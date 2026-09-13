@@ -1,11 +1,22 @@
+function stripMarkdown(text) {
+  return text
+    .replace(/^#{1,6}\s*.*$/gm, '') // stray heading lines
+    .replace(/\*\*(.*?)\*\*/g, '$1') // bold
+    .replace(/^[-*]\s+/gm, '') // bullet points
+    .replace(/\n{3,}/g, '\n\n')
+    .trim()
+}
+
 function buildPrompt(activities, morningChecks) {
-  return `Du bist ein Trainings-Coach. Fasse die folgende Trainingswoche auf Deutsch kurz und konkret zusammen (max. 150 Wörter, Fliesstext ohne Überschriften). Gehe ein auf:
+  return `Du bist ein Trainings-Coach. Fasse die folgende Trainingswoche auf Deutsch kurz und konkret zusammen. Gehe ein auf:
 - Trainingsvolumen Lauf (Anzahl Läufe, Gesamtkilometer, Gesamtzeit)
 - Trainingsvolumen Kraft (Anzahl Sessions, Gesamtdauer, wichtigste Übungen)
 - Trends bei Ruhepuls, Schlaf und Gewicht (steigend/fallend/stabil, basierend auf den Morgencheck-Werten)
 - ein kurzes, motivierendes Fazit
 
 Falls zu einem Punkt keine Daten vorhanden sind, erwähne das kurz und überspringe ihn sonst.
+
+Antworte ausschliesslich mit reinem Fliesstext in maximal zwei Absätzen, insgesamt höchstens 150 Wörter. Verwende KEIN Markdown: keine Überschriften, kein "#", keine Sternchen/Fettschrift, keine Aufzählungspunkte.
 
 Aktivitäten der letzten 7 Tage (JSON):
 ${JSON.stringify(activities)}
@@ -53,6 +64,6 @@ export const handler = async (event) => {
     return { statusCode: anthropicRes.status, body: JSON.stringify(data) }
   }
 
-  const summary = data.content?.[0]?.text?.trim() || ''
+  const summary = stripMarkdown(data.content?.[0]?.text || '')
   return { statusCode: 200, body: JSON.stringify({ summary }) }
 }
