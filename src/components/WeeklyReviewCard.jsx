@@ -34,7 +34,7 @@ export default function WeeklyReviewCard({ activities, morningChecks }) {
         </>
       ) : (
         <div className="list-item-detail" style={{ marginBottom: 12 }}>
-          Noch kein Rückblick für diese Woche. Wird automatisch sonntags ab 18 Uhr erstellt, oder jetzt manuell.
+          Noch kein Rückblick für diese Woche. Wird automatisch sonntags ab 20 Uhr erstellt, oder jetzt manuell.
         </div>
       )}
 

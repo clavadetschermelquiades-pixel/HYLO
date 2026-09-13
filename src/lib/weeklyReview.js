@@ -1,7 +1,7 @@
 import { startOfWeek, dateFromTimestamp } from './utils.js'
 
 const KEY = 'hylo:weeklyReview'
-const REVIEW_HOUR = 18 // Sonntag ab 18:00 Uhr
+const REVIEW_HOUR = 20 // Sonntag ab 20:00 Uhr
 
 function currentWeekKey() {
   return dateFromTimestamp(startOfWeek().getTime())
