@@ -4,6 +4,7 @@ import Dashboard from './components/Dashboard.jsx'
 import ActivityForm from './components/ActivityForm.jsx'
 import MorningCheckForm from './components/MorningCheckForm.jsx'
 import History from './components/History.jsx'
+import SessionFeedbackOverlay from './components/SessionFeedbackOverlay.jsx'
 import {
   getActivities,
   addActivity,
@@ -15,6 +16,7 @@ import {
 import { formatDate, todayStr } from './lib/utils.js'
 import { handleStravaRedirect, isStravaConnected, syncStravaActivities } from './lib/strava.js'
 import { shouldAutoGenerate, generateReview } from './lib/weeklyReview.js'
+import { getSessionFeedback } from './lib/sessionFeedback.js'
 
 const TITLES = {
   dashboard: ['Hylo', `Heute: ${formatDate(todayStr())}`],
@@ -27,6 +29,7 @@ export default function App() {
   const [tab, setTab] = useState('dashboard')
   const [activities, setActivities] = useState([])
   const [morningChecks, setMorningChecks] = useState([])
+  const [sessionFeedback, setSessionFeedback] = useState(null)
 
   const refresh = useCallback(() => {
     setActivities(getActivities())
@@ -55,6 +58,11 @@ export default function App() {
     addActivity(activity)
     refresh()
     setTab('history')
+
+    setSessionFeedback({ loading: true })
+    getSessionFeedback(activity)
+      .then((text) => setSessionFeedback({ text }))
+      .catch((e) => setSessionFeedback({ error: e.message || 'Feedback konnte nicht erstellt werden.' }))
   }
 
   function handleDeleteActivity(id) {
@@ -103,6 +111,8 @@ export default function App() {
       </main>
 
       <BottomNav active={tab} onChange={setTab} />
+
+      <SessionFeedbackOverlay state={sessionFeedback} onClose={() => setSessionFeedback(null)} />
     </div>
   )
 }
