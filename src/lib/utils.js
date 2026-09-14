@@ -27,13 +27,17 @@ export function formatDate(dateStr) {
   return d.toLocaleDateString('de-DE', { weekday: 'short', day: '2-digit', month: '2-digit', year: 'numeric' })
 }
 
+/** Pace given as minutes/km, formatted as "m:ss min/km" */
+export function formatPaceValue(paceMinPerKm) {
+  const min = Math.floor(paceMinPerKm)
+  const sec = Math.round((paceMinPerKm - min) * 60)
+  return `${min}:${String(sec).padStart(2, '0')} min/km`
+}
+
 /** Pace in min/km as "m:ss" */
 export function formatPace(distanceKm, durationMin) {
   if (!distanceKm || !durationMin) return '–'
-  const paceMin = durationMin / distanceKm
-  const min = Math.floor(paceMin)
-  const sec = Math.round((paceMin - min) * 60)
-  return `${min}:${String(sec).padStart(2, '0')} min/km`
+  return formatPaceValue(durationMin / distanceKm)
 }
 
 export function formatDuration(durationMin) {

@@ -110,7 +110,7 @@ export default function App() {
             onDeleteMorningCheck={handleDeleteMorningCheck}
           />
         )}
-        {tab === 'stats' && <Stats morningChecks={morningChecks} />}
+        {tab === 'stats' && <Stats activities={activities} morningChecks={morningChecks} />}
       </main>
 
       <BottomNav active={tab} onChange={setTab} />

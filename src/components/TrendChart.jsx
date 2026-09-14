@@ -7,8 +7,9 @@ const PAD_X = 12
 const PAD_TOP = 16
 const PAD_BOTTOM = 24
 
-export default function TrendChart({ title, color, unit, points }) {
+export default function TrendChart({ title, color, unit = '', points, formatValue }) {
   const [activeIndex, setActiveIndex] = useState(null)
+  const display = formatValue || ((v) => `${v}${unit}`)
 
   if (points.length === 0) {
     return (
@@ -67,10 +68,7 @@ export default function TrendChart({ title, color, unit, points }) {
     <div className="card">
       <div className="exercise-block-header" style={{ marginBottom: 2 }}>
         <h3 style={{ margin: 0 }}>{title}</h3>
-        <span style={{ color, fontWeight: 700, fontSize: 18 }}>
-          {last.value}
-          {unit}
-        </span>
+        <span style={{ color, fontWeight: 700, fontSize: 18 }}>{display(last.value)}</span>
       </div>
 
       <svg
@@ -108,7 +106,7 @@ export default function TrendChart({ title, color, unit, points }) {
 
       {active && (
         <div className="list-item-detail" style={{ textAlign: 'center' }}>
-          {formatDate(active.date)}: <strong style={{ color }}>{active.value}{unit}</strong>
+          {formatDate(active.date)}: <strong style={{ color }}>{display(active.value)}</strong>
         </div>
       )}
     </div>
