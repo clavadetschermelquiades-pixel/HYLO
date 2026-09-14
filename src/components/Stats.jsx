@@ -1,4 +1,5 @@
 import TrendChart from './TrendChart.jsx'
+import StravaDebug from './StravaDebug.jsx'
 import { formatPaceValue } from '../lib/utils.js'
 
 export default function Stats({ activities, morningChecks }) {
@@ -17,6 +18,8 @@ export default function Stats({ activities, morningChecks }) {
 
   return (
     <div>
+      <StravaDebug />
+
       <h3>Lauf-Verlauf</h3>
       <TrendChart title="Distanz" color="#f59e0b" unit=" km" points={distance} />
       <TrendChart title="Dauer" color="#f59e0b" unit=" min" points={duration} />
