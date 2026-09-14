@@ -3,6 +3,7 @@ const TABS = [
   { id: 'log', label: 'Loggen', icon: '➕' },
   { id: 'morning', label: 'Morgencheck', icon: '☀️' },
   { id: 'history', label: 'Verlauf', icon: '📜' },
+  { id: 'stats', label: 'Statistik', icon: '📊' },
 ]
 
 export default function BottomNav({ active, onChange }) {

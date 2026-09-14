@@ -4,6 +4,7 @@ import Dashboard from './components/Dashboard.jsx'
 import ActivityForm from './components/ActivityForm.jsx'
 import MorningCheckForm from './components/MorningCheckForm.jsx'
 import History from './components/History.jsx'
+import Stats from './components/Stats.jsx'
 import SessionFeedbackOverlay from './components/SessionFeedbackOverlay.jsx'
 import {
   getActivities,
@@ -23,6 +24,7 @@ const TITLES = {
   log: ['Aktivität loggen', 'Lauf oder Krafttraining erfassen'],
   morning: ['Morgencheck', 'Gewicht, Ruhepuls & Schlaf'],
   history: ['Verlauf', 'Alle Einträge im Überblick'],
+  stats: ['Statistik', 'Verläufe im Überblick'],
 }
 
 export default function App() {
@@ -108,6 +110,7 @@ export default function App() {
             onDeleteMorningCheck={handleDeleteMorningCheck}
           />
         )}
+        {tab === 'stats' && <Stats morningChecks={morningChecks} />}
       </main>
 
       <BottomNav active={tab} onChange={setTab} />
